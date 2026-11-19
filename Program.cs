@@ -594,6 +594,68 @@ group By Make
 
 --problem 50
 
+
+--problem 51 
+SELECT
+    LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID AS [L.D.LAppID],
+    LicenseClasses.ClassName AS DriverClass,
+    People.NationalNo,
+
+    CONCAT(
+        People.FirstName, ' ',
+        People.SecondName, ' ',
+        People.ThirdName, ' ',
+        People.LastName
+    ) AS FullName,
+
+    Applications.ApplicationDate,
+
+    SUM(
+        CASE
+            WHEN Tests.TestResult = 1 THEN 1
+            ELSE 0
+        END
+    ) AS PassedTests,
+
+    CASE
+        WHEN Applications.ApplicationStatus = 1 THEN 'New'
+        WHEN Applications.ApplicationStatus = 2 THEN 'Cancelled'
+        WHEN Applications.ApplicationStatus = 3 THEN 'Completed'
+        ELSE 'Unknown'
+    END AS ApplicationStatus
+
+FROM Applications
+
+INNER JOIN LocalDrivingLicenseApplications
+    ON Applications.ApplicationID =
+       LocalDrivingLicenseApplications.ApplicationID
+
+INNER JOIN People
+    ON Applications.ApplicantPersonID = People.PersonID
+
+INNER JOIN LicenseClasses
+    ON LocalDrivingLicenseApplications.LicenseClassID =
+       LicenseClasses.LicenseClassID
+
+LEFT JOIN TestAppointments
+    ON LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID =
+       TestAppointments.LocalDrivingLicenseApplicationID
+
+LEFT JOIN Tests
+    ON TestAppointments.TestAppointmentID = Tests.TestAppointmentID
+
+GROUP BY
+    LocalDrivingLicenseApplications.LocalDrivingLicenseApplicationID,
+    LicenseClasses.ClassName,
+    People.NationalNo,
+    People.FirstName,
+    People.SecondName,
+    People.ThirdName,
+    People.LastName,
+    Applications.ApplicationDate,
+    Applications.ApplicationStatus;
+	
+
 select * from FuelTypes
 order by newID();
 
